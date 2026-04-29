@@ -1,0 +1,6 @@
+C:\Users\YourName\Desktop\practical.cpp
+take yourname from window as
+
+cd /mnt/c/Users/YourName/Desktop
+g++ practical.cpp -o practical
+./practical
