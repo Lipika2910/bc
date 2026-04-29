@@ -1,0 +1,90 @@
+
+⚙️ Step 1: Install Go
+sudo apt update
+sudo apt install golang-go -y
+✔ Check version:
+go version
+
+👉 Go is required for building Fabric components.
+
+⚙️ Step 2: Install Docker
+sudo apt install docker.io -y
+sudo systemctl start docker
+sudo systemctl enable docker
+sudo usermod -aG docker $USER
+
+👉 Restart terminal after this.
+
+⚙️ Step 3: Install Docker Compose
+sudo apt install docker-compose -y
+
+⚙️ Step 4: Install Curl & Git
+sudo apt install curl git -y
+
+⚙️ Step 5: Download Hyperledger Fabric
+curl -L https://bit.ly/2ysbOFE -o install.sh
+chmod +x install.sh
+bash install.sh
+
+👉 This will:
+Clone fabric-samples
+Download Fabric binaries
+Pull Docker images
+
+
+⚙️ Step 6: Go to Test Network
+cd ~/fabric-samples/test-network
+
+⚙️ Step 7: Start Network & Create Channel
+./network.sh up createChannel -ca
+
+📌 What happens:
+Starts containers:
+Peer nodes
+Orderer
+Certificate Authorities
+Creates channel: mychannel
+Generates crypto certificates
+
+⚙️ Step 8: Verify Network
+docker ps
+
+👉 Shows running blockchain nodes
+
+⚙️ Step 9: Deploy Chaincode
+./network.sh deployCC \
+  -ccn basic \
+  -ccp ../asset-transfer-basic/chaincode-javascript \
+  -ccl javascript
+
+📌 This performs:
+Packaging chaincode
+Installing on peers
+Approving
+Committing
+
+⚙️ Step 10: Invoke Transaction
+peer chaincode invoke \
+-o localhost:7050 \
+--ordererTLSHostnameOverride orderer.example.com \
+--tls \
+--cafile $PWD/organizations/ordererOrganizations/example.com/tlsca/tlsca.example.com-cert.pem \
+-C mychannel \
+-n basic \
+--peerAddresses localhost:7051 \
+--tlsRootCertFiles $PWD/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt \
+--peerAddresses localhost:9051 \
+--tlsRootCertFiles $PWD/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt \
+-c '{"function":"InitLedger","Args":[]}'
+
+
+
+👉 Initializes blockchain with sample data
+
+⚙️ Step 11: Query Data
+peer chaincode query -C mychannel -n basic -c '{"Args":["GetAllAssets"]}'
+
+👉 Displays stored assets from blockchain
+
+⚙️ Step 12: Stop Network
+./network.sh down
